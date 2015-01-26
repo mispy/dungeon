@@ -32,8 +32,8 @@ namespace Dungeon {
             Content.RootDirectory = "Content";
 
             GraphicsManager = new GraphicsDeviceManager(this);
-            GraphicsManager.PreferredBackBufferWidth = 800;
-            GraphicsManager.PreferredBackBufferHeight = 600;
+            GraphicsManager.PreferredBackBufferWidth = 940;
+            GraphicsManager.PreferredBackBufferHeight = 720;
             GraphicsManager.IsFullScreen = false;
         }
 
@@ -62,7 +62,7 @@ namespace Dungeon {
             Map.Initialize(new TmxMap("Content/Map/testmap0.tmx"));
           
             player = new Creature();
-            player.cell = Map.Cells[17, 11];
+            player.Move(Map.Cells[17, 11]);
 
             foreach (var tile in Map.TileTypes) {
                 if (tile.Flags.Creature) {
@@ -78,6 +78,13 @@ namespace Dungeon {
         /// </summary>
         protected override void UnloadContent() {
             // TODO: Unload any non ContentManager content here
+        }
+
+        protected void FocusCamera() {
+            //update the camera
+            Viewport.X = (player.cell.x * Map.TileWidth) - (Viewport.Width / 2);
+            Viewport.Y = (player.cell.y * Map.TileHeight) - (Viewport.Height / 2);
+            Console.WriteLine("{0} {1}", Viewport.X, Viewport.Y);
         }
 
         /// <summary>
@@ -116,31 +123,26 @@ namespace Dungeon {
                     player.facing = facing;
                     player.Move(cell);
 
-                    //update the camera
-                    Viewport.X = (player.cell.x * Map.TileWidth) - (Viewport.Width /2);
-                    Viewport.Y = (player.cell.y * Map.TileWidth) - (Viewport.Height /2);
-
-
                     //debugging stuff
                     if (debug == true) {
                         //Console.WriteLine(player.cell.x + ", " + player.cell.y);
                         //Console.WriteLine(Viewport.X + ", " + Viewport.Y);
-                        Console.WriteLine(Viewport.X + ", " + Viewport.Y);
+                        //Console.WriteLine(Viewport.X + ", " + Viewport.Y);
                     }
                 }
             }
 
 
-/*            if (input.KeyPressed(Keys.Left)) {
-                Viewport.X = Math.Max(0, Viewport.X - scrollAmount);
+            /*if (input.KeyPressed(Keys.Left)) {
+                Viewport.X -= scrollAmount;
             } else if (input.KeyPressed(Keys.Right)) {
                 Viewport.X += scrollAmount;
             } else if (input.KeyPressed(Keys.Up)) {
-                Viewport.Y = Math.Max(0, Viewport.Y - scrollAmount);
+                Viewport.Y -= scrollAmount;
             } else if (input.KeyPressed(Keys.Down)) {
                 Viewport.Y += scrollAmount;
-            }
- */
+            }*/
+ 
             base.Update(gameTime);
         }
 
@@ -149,6 +151,7 @@ namespace Dungeon {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
+            FocusCamera();
             GraphicsDevice.Clear(Color.CornflowerBlue);
             SpriteBatch.Begin();
             Map.Renderer.Draw(SpriteBatch, Viewport);

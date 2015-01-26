@@ -28,18 +28,33 @@ namespace Dungeon {
         public void Draw(SpriteBatch batch, Rectangle viewport) {
 
             // Convert pixel coordinates to the corresponding tiles
-            var iStart = (int)Math.Floor((double)viewport.X / Map.TileWidth);
-            var iEnd = iStart + (int)Math.Floor((double)viewport.Width / Map.TileWidth) + 1;
+            int iStart, iEnd, jStart, jEnd;
+            if (viewport.X >= 0) {
+                iStart = (int)Math.Floor((double)viewport.X / Map.TileWidth);
+                iEnd = iStart + (int)Math.Floor((double)viewport.Width / Map.TileWidth) + 1;
+            } else {
+                iStart = (int)Math.Ceiling((double)viewport.X / Map.TileWidth);
+                iEnd = iStart + (int)Math.Ceiling((double)viewport.Width / Map.TileWidth) + 1;
+            }
 
-            var jStart = (int)Math.Floor((double)viewport.Y / Map.TileHeight);
-            var jEnd = jStart + (int)Math.Floor((double)viewport.Height / Map.TileHeight) + 1;
+            if (viewport.Y >= 0) {
+                jStart = (int)Math.Floor((double)viewport.Y / Map.TileHeight);
+                jEnd = jStart + (int)Math.Floor((double)viewport.Height / Map.TileHeight) + 1;
+            }
+            else {
+                jStart = (int)Math.Ceiling((double)viewport.Y / Map.TileHeight);
+                jEnd = jStart + (int)Math.Ceiling((double)viewport.Height / Map.TileHeight) + 1;
+            }
 
             // Ensure we're actually drawing stuff that's inside the map
             iEnd = Math.Min(iEnd, Map.Width);
             jEnd = Math.Min(jEnd, Map.Height);
             
-            var xRemainder = viewport.X % Map.TileWidth;
-            var yRemainder = viewport.Y % Map.TileHeight;
+            // How much of a tile at the edge of the screen is missing
+            var xOffset = -1 * viewport.X % Map.TileWidth;
+            var yOffset = -1 * viewport.Y % Map.TileHeight;
+
+            Console.WriteLine("{0} {1} {2} {3}", iStart, iEnd, viewport.X, xOffset);
 
             // Draw tiles inside canvas
             foreach (var layer in Map.Layers) {
@@ -54,8 +69,8 @@ namespace Dungeon {
                         }
 
                         var position = new Vector2(
-                            Map.TileWidth * (i - iStart) - xRemainder,
-                            Map.TileHeight * (j - jStart) - yRemainder);
+                            Map.TileWidth * (i - iStart) + xOffset,
+                            Map.TileHeight * (j - jStart) + yOffset);
                         
                         batch.Draw(tile.TileSheet, position,
                                    tile.Rectangle, tile.Flags.Obstacle ? Color.Red : Color.White, 0.0f, new Vector2(0, 0),
@@ -75,8 +90,8 @@ namespace Dungeon {
                         var tile = cre.tile;
 
                         var position = new Vector2(
-                            Map.TileWidth * (i - iStart) - xRemainder,
-                            Map.TileHeight * (j - jStart) - yRemainder);
+                            Map.TileWidth * (i - iStart) + xOffset,
+                            Map.TileHeight * (j - jStart) + yOffset);
 
                         var effects = SpriteEffects.None;
 

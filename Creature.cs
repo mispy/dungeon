@@ -34,7 +34,9 @@ namespace Dungeon {
         }
 
         public void Move(Cell newCell) {
-            cell.creatures.Remove(this);
+            if (cell != null) {
+                cell.creatures.Remove(this);
+            }
             newCell.creatures.Add(this);
             cell = newCell;
         }
