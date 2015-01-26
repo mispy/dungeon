@@ -12,7 +12,7 @@ using TiledSharp;
 
 namespace Dungeon {
     // NOTE (Mispy): most of the comments in this file are Monogame defaults, not mine
-
+    
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -24,6 +24,8 @@ namespace Dungeon {
         public Map Map;
         public Rectangle Viewport;
         public Creature player;
+
+        bool debug = true;
 
         public DungeonGame()
             : base() {
@@ -60,7 +62,7 @@ namespace Dungeon {
             Map.Initialize(new TmxMap("Content/Map/testmap0.tmx"));
           
             player = new Creature();
-            player.cell = Map.Cells[4, 2];
+            player.cell = Map.Cells[17, 11];
 
             foreach (var tile in Map.TileTypes) {
                 if (tile.Flags.Creature) {
@@ -113,6 +115,18 @@ namespace Dungeon {
                 if (player.CanPass(cell)) {
                     player.facing = facing;
                     player.Move(cell);
+
+                    //update the camera
+                    Viewport.X = (player.cell.x * Map.TileWidth) - (Viewport.Width /2);
+                    Viewport.Y = (player.cell.y * Map.TileWidth) - (Viewport.Height /2);
+
+
+                    //debugging stuff
+                    if (debug == true) {
+                        //Console.WriteLine(player.cell.x + ", " + player.cell.y);
+                        //Console.WriteLine(Viewport.X + ", " + Viewport.Y);
+                        Console.WriteLine(Viewport.X + ", " + Viewport.Y);
+                    }
                 }
             }
 

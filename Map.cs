@@ -45,6 +45,7 @@ namespace Dungeon {
             foreach (var layer in Map.Layers) {
                 for (var i = iStart; i < iEnd; i++) {
                     for (var j = jStart; j < jEnd; j++) {
+                        if (i < 0 || j < 0) continue;
                         var tile = layer[i,j];
 
                         // Empty tiles have no graphical information                       
@@ -65,6 +66,7 @@ namespace Dungeon {
 
             for (var i = iStart; i < iEnd; i++) {
                 for (var j = jStart; j < jEnd; j++) {
+                    if (i < 0 || j < 0) continue;
                     var cell = Map.Cells[i, j];
                     cell.x = i;
                     cell.y = j;
