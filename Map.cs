@@ -57,23 +57,37 @@ namespace Dungeon {
                             Map.TileHeight * (j - jStart) - yRemainder);
                         
                         batch.Draw(tile.TileSheet, position,
-                                   tile.Rectangle, Color.White, 0.0f, new Vector2(0, 0),
+                                   tile.Rectangle, tile.Flags.Obstacle ? Color.Red : Color.White, 0.0f, new Vector2(0, 0),
                                    1, SpriteEffects.None, 0);
                     }
                 }
             }
-        }
-    }
 
-    /// <summary>
-    /// Represents a single kind of tile on a tilesheet.
-    /// </summary>
-    public class Tile {
-        public Texture2D TileSheet; // Tilesheet containing this tile
-        public Rectangle Rectangle; // Where on the tilesheet it is
-        public PropertyDict Properties; // TMX tile properties
+            for (var i = iStart; i < iEnd; i++) {
+                for (var j = jStart; j < jEnd; j++) {
+                    var cell = Map.Cells[i, j];
+                    cell.x = i;
+                    cell.y = j;
 
-        public Tile() {
+                    foreach (var cre in cell.creatures) {
+                        var tile = cre.tile;
+
+                        var position = new Vector2(
+                            Map.TileWidth * (i - iStart) - xRemainder,
+                            Map.TileHeight * (j - jStart) - yRemainder);
+
+                        var effects = SpriteEffects.None;
+
+                        if (cre.facing == Direction.Right) {
+                            effects = SpriteEffects.FlipHorizontally;
+                        }
+
+                        batch.Draw(tile.TileSheet, position,
+                                   tile.Rectangle, Color.White, 0.0f, new Vector2(0, 0),
+                                   1, effects, 0);
+                    }
+                }
+            }
         }
     }
 
@@ -91,7 +105,8 @@ namespace Dungeon {
         public int TileHeight;
 
         public List<Tile[,]> Layers; // Tile layers, from bottom to top
-        public Tile[,] Tiles; // Combined "topmost" layer (i.e. each tile from the highest layer at that position)
+        public List<Tile> TileTypes; // List of all tiletypes in the map
+        public Cell[,] Cells;
 
         public MapRenderer Renderer;
 
@@ -107,6 +122,7 @@ namespace Dungeon {
 
             // Temporary tmx tile id => Tile
             var tileTypes = new Dictionary<int, Tile>();
+            TileTypes = new List<Tile>(); // TODO make this less confusing
 
             // tileTypes[0] is the default "air" tile
             // We currently convey this by setting the TileSheet to null
@@ -114,6 +130,7 @@ namespace Dungeon {
             emptyTile.TileSheet = null;
             tileTypes[0] = emptyTile;
 
+            var sheetIndex = 0;
             foreach (TmxTileset ts in tmx.Tilesets) {
                 var tileSheet = GetTileSheet(ts.Image.Source);
 
@@ -123,7 +140,7 @@ namespace Dungeon {
                 var wStart = ts.Margin;
                 var wInc = ts.TileWidth + ts.Spacing;
                 var wEnd = ts.Image.Width - (ts.Image.Width % (ts.TileWidth + ts.Spacing));
-
+                
                 var hStart = ts.Margin;
                 var hInc = ts.TileHeight + ts.Spacing;
                 var hEnd = ts.Image.Height - (ts.Image.Height % (ts.TileHeight + ts.Spacing));
@@ -133,15 +150,18 @@ namespace Dungeon {
                     for (var w = wStart; w < wEnd; w += wInc) {                        
                         var tile = new Tile();
                         tile.TileSheet = tileSheet;
-                        tile.Rectangle = new Rectangle(w, h, ts.TileWidth, ts.TileHeight);                        
+                        tile.Rectangle = new Rectangle(w, h, ts.TileWidth, ts.TileHeight);
                         tileTypes[id] = tile;
+                        TileTypes.Add(tile);
                         id += 1;
                     }
                 }
    
                 foreach (TmxTilesetTile tile in ts.Tiles) {
-                    tileTypes[tile.Id].Properties = tile.Properties;
+                     tileTypes[ts.FirstGid+tile.Id].InitProps(tile.Properties);
                 }
+
+                sheetIndex += 1;
             }
 
             // Compute map structure and gameplay tiles
@@ -149,7 +169,13 @@ namespace Dungeon {
             // The combined layer represents the topmost tiles (i.e. those with no other tiles in front of them)
 
             Layers = new List<Tile[,]>();
-            Tiles = new Tile[Width, Height]; // Combined layer
+            Cells = new Cell[Width, Height]; // Gameplay cells
+
+            for (var i = 0; i < Width; i++) {
+                for (var j = 0; j < Height; j++) {
+                    Cells[i, j] = new Cell();
+                }
+            }
 
             foreach (TmxLayer tmxLayer in tmx.Layers) {
                 var layer = new Tile[Width, Height];
@@ -157,7 +183,7 @@ namespace Dungeon {
                 foreach (TmxLayerTile tile in tmxLayer.Tiles) {
                     var tileType = tileTypes[tile.Gid];
                     layer[tile.X, tile.Y] = tileType;
-                    Tiles[tile.X, tile.Y] = tileType;
+                    Cells[tile.X, tile.Y].tiles.Add(tileType);
                 }
 
                 Layers.Add(layer);
@@ -170,7 +196,7 @@ namespace Dungeon {
 
             imgStream = File.OpenRead(filepath);
 
-            newSheet = Texture2D.FromStream(Game1.current.Graphics, imgStream);
+            newSheet = Texture2D.FromStream(DungeonGame.current.Graphics, imgStream);
             return newSheet;
         }
     }

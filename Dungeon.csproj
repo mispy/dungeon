@@ -8,8 +8,8 @@
     <ProjectGuid>{E51A287A-5342-4AD0-84C2-D7A7CFE4DD20}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GameName1</RootNamespace>
-    <AssemblyName>GameName1</AssemblyName>
+    <RootNamespace>Dungeon</RootNamespace>
+    <AssemblyName>Dungeon</AssemblyName>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -35,9 +35,13 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Cell.cs" />
+    <Compile Include="Creature.cs" />
+    <Compile Include="InputState.cs" />
     <Compile Include="Map.cs" />
-    <Compile Include="Game1.cs" />
+    <Compile Include="Game.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Tile.cs" />
     <Compile Include="TiledSharp\src\AssemblyInfo.cs" />
     <Compile Include="TiledSharp\src\ImageLayer.cs" />
     <Compile Include="TiledSharp\src\Layer.cs" />
