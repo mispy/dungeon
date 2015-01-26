@@ -40,8 +40,7 @@ namespace Dungeon {
             if (viewport.Y >= 0) {
                 jStart = (int)Math.Floor((double)viewport.Y / Map.TileHeight);
                 jEnd = jStart + (int)Math.Floor((double)viewport.Height / Map.TileHeight) + 1;
-            }
-            else {
+            } else {
                 jStart = (int)Math.Ceiling((double)viewport.Y / Map.TileHeight);
                 jEnd = jStart + (int)Math.Ceiling((double)viewport.Height / Map.TileHeight) + 1;
             }
