@@ -3,150 +3,83 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Linq;
+using System.Diagnostics;
 
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using TiledSharp;
 
 namespace Dungeon {
-    // <summary>
-    // Map component which draws a Map on the screen.
-    // </summary>
-    public class MapRenderer {
-        private Map Map;
-
-        public MapRenderer(Map map) {
-            Map = map;
-        }
-
-        // <summary>
-        // Draws the map.
-        // <param name="batch">SpriteBatch on which to draw.</param>
-        // <param name="viewport">Rectangle of the map to draw. Specifed in pixel, not tile coordinates, to enable smooth scrolling.</param>
-        // </summary>
-        public void Draw(SpriteBatch batch, Rectangle viewport) {
-
-            // Convert pixel coordinates to the corresponding tiles
-            int iStart, iEnd, jStart, jEnd;
-            if (viewport.X >= 0) {
-                iStart = (int)Math.Floor((double)viewport.X / Map.TileWidth);
-                iEnd = iStart + (int)Math.Floor((double)viewport.Width / Map.TileWidth) + 1;
-            } else {
-                iStart = (int)Math.Ceiling((double)viewport.X / Map.TileWidth);
-                iEnd = iStart + (int)Math.Ceiling((double)viewport.Width / Map.TileWidth) + 1;
-            }
-
-            if (viewport.Y >= 0) {
-                jStart = (int)Math.Floor((double)viewport.Y / Map.TileHeight);
-                jEnd = jStart + (int)Math.Floor((double)viewport.Height / Map.TileHeight) + 1;
-            } else {
-                jStart = (int)Math.Ceiling((double)viewport.Y / Map.TileHeight);
-                jEnd = jStart + (int)Math.Ceiling((double)viewport.Height / Map.TileHeight) + 1;
-            }
-
-            // Ensure we're actually drawing stuff that's inside the map
-            iEnd = Math.Min(iEnd, Map.Width);
-            jEnd = Math.Min(jEnd, Map.Height);
-            
-            // How much of a tile at the edge of the screen is missing
-            var xOffset = -1 * viewport.X % Map.TileWidth;
-            var yOffset = -1 * viewport.Y % Map.TileHeight;
-
-            Console.WriteLine("{0} {1} {2} {3}", iStart, iEnd, viewport.X, xOffset);
-
-            // Draw tiles inside canvas
-            foreach (var layer in Map.Layers) {
-                for (var i = iStart; i < iEnd; i++) {
-                    for (var j = jStart; j < jEnd; j++) {
-                        if (i < 0 || j < 0) continue;
-                        var tile = layer[i,j];
-
-                        // Empty tiles have no graphical information                       
-                        if (tile.TileSheet == null) {
-                            continue;
-                        }
-
-                        var position = new Vector2(
-                            Map.TileWidth * (i - iStart) + xOffset,
-                            Map.TileHeight * (j - jStart) + yOffset);
-                        
-                        batch.Draw(tile.TileSheet, position,
-                                   tile.Rectangle, tile.Flags.Obstacle ? Color.Red : Color.White, 0.0f, new Vector2(0, 0),
-                                   1, SpriteEffects.None, 0);
-                    }
-                }
-            }
-
-            for (var i = iStart; i < iEnd; i++) {
-                for (var j = jStart; j < jEnd; j++) {
-                    if (i < 0 || j < 0) continue;
-                    var cell = Map.Cells[i, j];
-                    cell.x = i;
-                    cell.y = j;
-
-                    foreach (var cre in cell.creatures) {
-                        var tile = cre.tile;
-
-                        var position = new Vector2(
-                            Map.TileWidth * (i - iStart) + xOffset,
-                            Map.TileHeight * (j - jStart) + yOffset);
-
-                        var effects = SpriteEffects.None;
-
-                        if (cre.facing == Direction.Right) {
-                            effects = SpriteEffects.FlipHorizontally;
-                        }
-
-                        batch.Draw(tile.TileSheet, position,
-                                   tile.Rectangle, Color.White, 0.0f, new Vector2(0, 0),
-                                   1, effects, 0);
-                    }
-                }
-            }
-        }
-    }
-
-    // <summary>
-    // This class represents a game map, providing a common interface to
-    // the underlying Tiled map data.
-    // </summary>
+    /// <summary>
+    /// This class represents a game map, providing a common interface to
+    /// the underlying Tiled map data.
+    /// </summary>
     public class Map {
-        // Width and height, in number of tiles
+        /// <summary>
+        /// Width of the map, in number of tiles
+        /// </summary>
         public int Width;
+
+        /// <summary>
+        /// Height of the map, in number of tiles
+        /// </summary>
         public int Height;
 
-        // Width and height of each tile, in pixels
+        /// <summary>
+        /// Width of a tile, in pixels (presumably same as height)
+        /// </summary>
         public int TileWidth;
+
+        /// <summary>
+        /// Height of a tile, in pixels (presumably same as width)
+        /// </summary>
         public int TileHeight;
 
-        public List<Tile[,]> Layers; // Tile layers, from bottom to top
-        public List<Tile> TileTypes; // List of all tiletypes in the map
+        /// <summary>
+        /// List of all the individual types of tile we find in the map
+        /// </summary>
+        public List<Tile> TileTypes;
+
+        /// <summary>
+        /// 2D array of cells that contains most of the data
+        /// </summary>
         public Cell[,] Cells;
+
+        /// <summary>
+        /// Finds all the creatures on the map.
+        /// TODO (Mispy): Make this one list that is updated, for performance reasons.
+        /// </summary>
+        public List<Creature> Creatures {
+            get {
+                var creatures = new List<Creature>();
+
+                for (var i = 0; i < Width; i++) {
+                    for (var j = 0; j < Height; j++) {
+                        creatures = creatures.Concat(Cells[i, j].Creatures).ToList();
+                    }
+                }
+
+                return creatures;
+            }
+        }
 
         public MapRenderer Renderer;
 
         public Map() {
             Renderer = new MapRenderer(this);
+            TileTypes = new List<Tile>();
         }
 
-        public void Initialize(TmxMap tmx) {
+        public void LoadTMX(TmxMap tmx) {
             Width = tmx.Width;
             Height = tmx.Height;
             TileWidth = tmx.TileWidth;
             TileHeight = tmx.TileHeight;
 
-            // Temporary tmx tile id => Tile
-            var tileTypes = new Dictionary<int, Tile>();
-            TileTypes = new List<Tile>(); // TODO make this less confusing
+            // We map tmx tile gid => Tile so we can put the tile properties in
+            var tileTypesById = new Dictionary<int, Tile>();
+            tileTypesById[0] = Tile.Blank;
 
-            // tileTypes[0] is the default "air" tile
-            // We currently convey this by setting the TileSheet to null
-            var emptyTile = new Tile();
-            emptyTile.TileSheet = null;
-            tileTypes[0] = emptyTile;
-
-            var sheetIndex = 0;
             foreach (TmxTileset ts in tmx.Tilesets) {
                 var tileSheet = GetTileSheet(ts.Image.Source);
 
@@ -167,45 +100,53 @@ namespace Dungeon {
                         var tile = new Tile();
                         tile.TileSheet = tileSheet;
                         tile.Rectangle = new Rectangle(w, h, ts.TileWidth, ts.TileHeight);
-                        tileTypes[id] = tile;
+                        tileTypesById[id] = tile;
+
                         TileTypes.Add(tile);
                         id += 1;
                     }
                 }
    
                 foreach (TmxTilesetTile tile in ts.Tiles) {
-                     tileTypes[ts.FirstGid+tile.Id].InitProps(tile.Properties);
+                     tileTypesById[ts.FirstGid+tile.Id].InitProps(tile.Properties);
                 }
-
-                sheetIndex += 1;
             }
 
-            // Compute map structure and gameplay tiles
-            // Individual layers are used for rendering
-            // The combined layer represents the topmost tiles (i.e. those with no other tiles in front of them)
-
-            Layers = new List<Tile[,]>();
-            Cells = new Cell[Width, Height]; // Gameplay cells
+            // Now that we know what all the tiles look like, we can
+            // start splitting up the layers and packing them into cells
+            Cells = new Cell[Width, Height];
 
             for (var i = 0; i < Width; i++) {
                 for (var j = 0; j < Height; j++) {
-                    Cells[i, j] = new Cell();
+                    Cells[i, j] = new Cell(this, i, j);
                 }
             }
 
             foreach (TmxLayer tmxLayer in tmx.Layers) {
-                var layer = new Tile[Width, Height];
+                foreach (TmxLayerTile tmxTile in tmxLayer.Tiles) {
+                    var tileType = tileTypesById[tmxTile.Gid];
 
-                foreach (TmxLayerTile tile in tmxLayer.Tiles) {
-                    var tileType = tileTypes[tile.Gid];
-                    layer[tile.X, tile.Y] = tileType;
-                    Cells[tile.X, tile.Y].tiles.Add(tileType);
+                    if (tileType.Flags.Creature) {
+                        // We found a creature!
+                        var cre = new Creature();
+
+                        // Find the creature's second animation tile by looking one row down in the tileset
+                        var secondTile = tileTypesById[tmxTile.Gid + (tileType.TileSheet.Width / TileWidth)];
+                        cre.Tiles = new List<Tile>() { tileType, secondTile };
+
+                        cre.Move(Cells[tmxTile.X, tmxTile.Y]);
+                    } else {
+                        Cells[tmxTile.X, tmxTile.Y].Tiles.Add(tileType);
+                    }
                 }
-
-                Layers.Add(layer);
             }
         }
 
+        /// <summary>
+        /// Loads a tilesheet into a Texture2D.
+        /// </summary>
+        /// <param name="filepath">Path to image file.</param>
+        /// <returns></returns>
         public Texture2D GetTileSheet(string filepath) {
             Texture2D newSheet;
             Stream imgStream;

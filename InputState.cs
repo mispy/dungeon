@@ -7,11 +7,22 @@ using Microsoft.Xna.Framework;
 
 namespace Dungeon {
     /// <summary>
-    /// Wraps keyboard/mouse input with temporal metadata
+    /// Wraps keyboard/mouse input with time information
     /// </summary>
     public class InputState {
+        /// <summary>
+        /// The previous state of input we received
+        /// </summary>
         public static InputState LastInput;
-        public static double LastKeyChange = 0; // Milliseconds since last keystate change    
+        
+        /// <summary>
+        /// Milliseconds since we last switched keys
+        /// </summary>
+        public static double LastKeyChange = 0;
+
+        /// <summary>
+        /// Whether keys are currently in repeat mode (like when you hold them down)
+        /// </summary>
         public static bool Repeating = false;
 
         public KeyboardState Keys;
@@ -35,8 +46,7 @@ namespace Dungeon {
             if (LastInput == null || LastInput.Keys != Keys) {
                 LastKeyChange = 0;
                 Repeating = false;
-            }
-            else {
+            } else {
                 LastKeyChange += gameTime.ElapsedGameTime.TotalMilliseconds;
                 //Console.WriteLine("{0}", LastKeyChange);
                 if (LastKeyChange > 500) Repeating = true;

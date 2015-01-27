@@ -1,5 +1,4 @@
-﻿#region Using Statements
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
@@ -8,11 +7,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
 using TiledSharp;
-#endregion
 
 namespace Dungeon {
-    // NOTE (Mispy): most of the comments in this file are Monogame defaults, not mine
-    
     /// <summary>
     /// This is the main type for your game
     /// </summary>
@@ -23,18 +19,21 @@ namespace Dungeon {
         public SpriteBatch SpriteBatch;
         public Map Map;
         public Rectangle Viewport;
-        public Creature player;
+        public Creature Player;
 
+        public static Random Random = new Random();
+
+        // Just a simple millisecond counter, for now
+        double timeElapsed = 0; 
+        
         bool debug = true;
 
-        public DungeonGame()
-            : base() {
-            Content.RootDirectory = "Content";
-
+        public DungeonGame() : base() {
             GraphicsManager = new GraphicsDeviceManager(this);
             GraphicsManager.PreferredBackBufferWidth = 940;
             GraphicsManager.PreferredBackBufferHeight = 720;
             GraphicsManager.IsFullScreen = false;
+            IsMouseVisible = true;
         }
 
         /// <summary>
@@ -45,10 +44,6 @@ namespace Dungeon {
         /// </summary>
         protected override void Initialize() {
             base.Initialize();
-
-            Viewport = Graphics.Viewport.Bounds;
-            Viewport.X = 0;
-            Viewport.Y = 0;
         }
 
         /// <summary>
@@ -56,20 +51,21 @@ namespace Dungeon {
         /// all of your content.
         /// </summary>
         protected override void LoadContent() {
-            Graphics = GraphicsManager.GraphicsDevice;
-            SpriteBatch = new SpriteBatch(Graphics);
-            Map = new Map();
-            Map.Initialize(new TmxMap("Content/Map/testmap0.tmx"));
-          
-            player = new Creature();
-            player.Move(Map.Cells[17, 11]);
+            Content.RootDirectory = "Content";
 
-            foreach (var tile in Map.TileTypes) {
-                if (tile.Flags.Creature) {
-                    player.tile = tile;
-                    break;
-                }
-            }
+            // Set up the graphics system here so the map can load textures
+            Graphics = GraphicsManager.GraphicsDevice;
+
+            Viewport = Graphics.Viewport.Bounds;
+            Viewport.X = 0;
+            Viewport.Y = 0;
+
+            SpriteBatch = new SpriteBatch(Graphics);
+
+            Map = new Map();
+            Map.LoadTMX(new TmxMap("Content/Map/testmap0.tmx"));
+
+            Player = Map.Cells[19, 11].Creatures[0];
         }
 
         /// <summary>
@@ -80,51 +76,56 @@ namespace Dungeon {
             // TODO: Unload any non ContentManager content here
         }
 
-        protected void FocusCamera() {
-            //update the camera
-            Viewport.X = (player.cell.x * Map.TileWidth) - (Viewport.Width / 2);
-            Viewport.Y = (player.cell.y * Map.TileHeight) - (Viewport.Height / 2);
-            Console.WriteLine("{0} {1}", Viewport.X, Viewport.Y);
-        }
-
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime) {
+            timeElapsed += gameTime.ElapsedGameTime.TotalMilliseconds;
+
+            if (timeElapsed > 500) {
+                foreach (var cre in Map.Creatures) {
+                    if (cre != Player) cre.Bobble();
+                }
+                timeElapsed = 0;
+            }
+            
             InputState input = InputState.GetState(gameTime);
 
             if (input.KeyPressed(Keys.Escape)) {
                 Exit();
             }
 
-            // Demo code for scrolling map
-            var scrollAmount = 10;
-
-            var newx = player.cell.x;
-            var newy = player.cell.y;
-            var facing = player.facing;
+            // Player movement code.
+            // TODO (Mispy): A proper time system.
+            var newx = Player.Cell.X;
+            var newy = Player.Cell.Y;
+            var newFacing = Player.Facing;
             if (input.KeyPressed(Keys.Left)) {
                 newx -= 1;
-                facing = Direction.Left;
+                newFacing = Direction.Left;
             } else if (input.KeyPressed(Keys.Right)) {
                 newx += 1;
-                facing = Direction.Right;
+                newFacing = Direction.Right;
             } else if (input.KeyPressed(Keys.Up)) {
                 newy -= 1;
             } else if (input.KeyPressed(Keys.Down)) {
                 newy += 1;
             }
 
-            if ((newx != player.cell.x || newy != player.cell.y) && newx >= 0 && newx < Map.Width && newy >= 0 && newy < Map.Height) {
+            if ((newx != Player.Cell.X || newy != Player.Cell.Y) && newx >= 0 && newx < Map.Width && newy >= 0 && newy < Map.Height) {
                 var cell = Map.Cells[newx, newy];
-                if (player.CanPass(cell)) {
-                    player.facing = facing;
-                    player.Move(cell);
+                if (Player.CanPass(cell)) {
+                    Player.Facing = newFacing;
+                    Player.Move(cell);
 
-                    //debugging stuff
-                    if (debug == true) {
+                    // Other creatures take their turns
+                    foreach (var cre in Map.Creatures) {
+                        if (cre != Player) cre.TakeTurn();
+                    }
+
+                    if (debug) {
                         //Console.WriteLine(player.cell.x + ", " + player.cell.y);
                         //Console.WriteLine(Viewport.X + ", " + Viewport.Y);
                         //Console.WriteLine(Viewport.X + ", " + Viewport.Y);
@@ -132,8 +133,9 @@ namespace Dungeon {
                 }
             }
 
-
-            /*if (input.KeyPressed(Keys.Left)) {
+            // These controls just scroll around the map instead, for testing
+            /*var scrollAmount = 10;
+            if (input.KeyPressed(Keys.Left)) {
                 Viewport.X -= scrollAmount;
             } else if (input.KeyPressed(Keys.Right)) {
                 Viewport.X += scrollAmount;
@@ -142,8 +144,17 @@ namespace Dungeon {
             } else if (input.KeyPressed(Keys.Down)) {
                 Viewport.Y += scrollAmount;
             }*/
- 
+
             base.Update(gameTime);
+        }
+
+        // <summary>
+        // Centers the current Viewport around the player
+        // </summary>
+        protected void CenterCamera() {
+            Viewport.X = (Player.Cell.X * Map.TileWidth) - (Viewport.Width / 2);
+            Viewport.Y = (Player.Cell.Y * Map.TileHeight) - (Viewport.Height / 2);
+            //Console.WriteLine("{0} {1}", Viewport.X, Viewport.Y);
         }
 
         /// <summary>
@@ -151,7 +162,7 @@ namespace Dungeon {
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
-            FocusCamera();
+            CenterCamera();
             GraphicsDevice.Clear(Color.CornflowerBlue);
             SpriteBatch.Begin();
             Map.Renderer.Draw(SpriteBatch, Viewport);

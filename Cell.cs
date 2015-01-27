@@ -9,14 +9,44 @@ namespace Dungeon {
     /// multiple Tiles layered on top of each other.
     /// </summary>
     public class Cell {
-        public int x;
-        public int y;
-        public List<Tile> tiles;
-        public List<Creature> creatures;
+        public int X;
+        public int Y;
 
-        public Cell() {
-            tiles = new List<Tile>();
-            creatures = new List<Creature>();
+        // <summary>
+        // Graphical tiles that make up the cell, in order from bottom to top.
+        // </summary>
+        public List<Tile> Tiles;
+
+        // <summary>
+        // Creatures currently occupying the cell.
+        // </summary>
+        public List<Creature> Creatures;
+
+        public Map Map;
+
+        public Cell(Map map, int x, int y) {
+            Map = map;
+            X = x;
+            Y = y;
+            Tiles = new List<Tile>();
+            Creatures = new List<Creature>();
+        }
+
+        /// <summary>
+        /// Find all cells immediately adjacent to this one.
+        /// </summary>
+        public List<Cell> FindNeighbors() {
+            var cells = new List<Cell>();
+
+            for (var i = X - 1; i <= X + 1; i++) {
+                for (var j = Y - 1; j <= Y + 1; j++) {
+                    if (i > 0 && j > 0 && i < Map.Width && j < Map.Height) {
+                        cells.Add(Map.Cells[i, j]);
+                    }                    
+                }
+            }
+
+            return cells;
         }
     }
 }
