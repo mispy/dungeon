@@ -52,12 +52,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Cell.cs" />
-    <Compile Include="Class1.cs" />
     <Compile Include="Creature.cs" />
     <Compile Include="InputState.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="MapRenderer.cs" />
+    <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TiledSharp\src\AssemblyInfo.cs" />
