@@ -28,6 +28,9 @@ namespace Dungeon {
         
         bool debug = true;
 
+        //new colour for background
+        Color bg_colour = new Color(38, 38, 38);
+
         public DungeonGame() : base() {
             GraphicsManager = new GraphicsDeviceManager(this);
             GraphicsManager.PreferredBackBufferWidth = 940;
@@ -64,7 +67,6 @@ namespace Dungeon {
 
             Map = new Map();
             Map.LoadTMX(new TmxMap("Content/Map/testmap0.tmx"));
-
             Player = Map.Cells[19, 11].Creatures[0];
         }
 
@@ -85,9 +87,14 @@ namespace Dungeon {
             timeElapsed += gameTime.ElapsedGameTime.TotalMilliseconds;
 
             if (timeElapsed > 500) {
+                //creature bobble animations
                 foreach (var cre in Map.Creatures) {
                     if (cre != Player) cre.Bobble();
                 }
+
+                //fire and misc map animations
+
+
                 timeElapsed = 0;
             }
             
@@ -112,6 +119,15 @@ namespace Dungeon {
                 newy -= 1;
             } else if (input.KeyPressed(Keys.Down)) {
                 newy += 1;
+            }
+            else if (input.KeyPressed(Keys.W))
+            {
+                //player waits a turn
+                // Other creatures take their turns
+                foreach (var cre in Map.Creatures)
+                {
+                    if (cre != Player) cre.TakeTurn();
+                }
             }
 
             if ((newx != Player.Cell.X || newy != Player.Cell.Y) && newx >= 0 && newx < Map.Width && newy >= 0 && newy < Map.Height) {
@@ -163,7 +179,7 @@ namespace Dungeon {
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime) {
             CenterCamera();
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(bg_colour);
             SpriteBatch.Begin();
             Map.Renderer.Draw(SpriteBatch, Viewport);
             SpriteBatch.End();
