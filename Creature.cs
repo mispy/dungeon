@@ -34,6 +34,8 @@ namespace Dungeon {
         /// </summary>
         public int TileIndex;
 
+        public Inventory Inventory;
+
         /// <summary>
         /// Gets the currently active tile.
         /// </summary>
@@ -49,6 +51,7 @@ namespace Dungeon {
         public Creature() {
             Tiles = new List<Tile> { Tile.Blank };
             Facing = Direction.Right;
+            Inventory = new Inventory();
 
             // Keep Cell null so you can make creatures before deciding where they go
             Cell = null;

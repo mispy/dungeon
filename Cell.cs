@@ -17,6 +17,11 @@ namespace Dungeon {
         // </summary>
         public List<Tile> Tiles;
 
+        /// <summary>
+        /// Items currently occupying the cell.
+        /// </summary>
+        public List<Item> Items;
+
         // <summary>
         // Creatures currently occupying the cell.
         // </summary>
@@ -29,6 +34,7 @@ namespace Dungeon {
             X = x;
             Y = y;
             Tiles = new List<Tile>();
+            Items = new List<Item>();
             Creatures = new List<Creature>();
         }
 

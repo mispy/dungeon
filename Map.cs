@@ -128,6 +128,7 @@ namespace Dungeon {
             foreach (TmxLayer tmxLayer in tmx.Layers) {
                 foreach (TmxLayerTile tmxTile in tmxLayer.Tiles) {
                     var tileType = tileTypesById[tmxTile.Gid];
+                    var cell = Cells[tmxTile.X, tmxTile.Y];
 
                     if (tileType.Flags.Creature) {
                         // We found a creature!
@@ -137,9 +138,14 @@ namespace Dungeon {
                         var secondTile = tileTypesById[tmxTile.Gid + (tileType.TileSheet.Width / TileWidth)];
                         cre.Tiles = new List<Tile>() { tileType, secondTile };
 
-                        cre.Move(Cells[tmxTile.X, tmxTile.Y]);
+                        cre.Move(cell);
+                    } else if (tileType.Flags.Item) {
+                        // We found an item!
+                        var item = new Item();
+                        item.Tile = tileType;
+                        cell.Items.Add(item);
                     } else {
-                        Cells[tmxTile.X, tmxTile.Y].Tiles.Add(tileType);
+                        cell.Tiles.Add(tileType);
                     }
                 }
             }

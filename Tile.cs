@@ -11,6 +11,7 @@ namespace Dungeon {
         public bool Obstacle = false;
         public bool Creature = false;
         public bool Player = false;
+        public bool Item = false;
     }
 
     /// <summary>
@@ -36,6 +37,8 @@ namespace Dungeon {
                     Flags.Creature = true;
                 } else if (pair.Key == "player") {
                     Flags.Player = true;
+                } else if (pair.Key == "item") {
+                    Flags.Item = true;
                 }
             }
         }

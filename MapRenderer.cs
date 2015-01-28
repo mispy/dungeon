@@ -93,6 +93,14 @@ namespace Dungeon {
                                 1, SpriteEffects.None, 0);
                     }
 
+                    foreach (var item in cell.Items) {
+                        var tile = item.Tile;
+
+                        batch.Draw(tile.TileSheet, position,
+                                   tile.Rectangle, Color.White, 0.0f, new Vector2(0, 0),
+                                   1, SpriteEffects.None, 0);
+                    }
+
                     foreach (var cre in cell.Creatures) {
                         var tile = cre.Tile;
 
