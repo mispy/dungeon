@@ -5,9 +5,12 @@ using System.Text;
 
 namespace Dungeon
 {
-    class Player : Creature
+    public class Player : Creature
     {
+        public List<Cell> CurrentPath;
 
+        public Player() : base() {
+        }
 
     }
 }

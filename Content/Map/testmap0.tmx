@@ -249,6 +249,7 @@
   <tile id="12">
    <properties>
     <property name="creature" value="true"/>
+    <property name="player" value="true"/>
    </properties>
   </tile>
   <tile id="13">

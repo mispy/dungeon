@@ -16,6 +16,27 @@ namespace Dungeon {
             Map = map;
         }
 
+        public int xStart;
+        public int yStart;
+        public int xEnd;
+        public int yEnd;
+        public int xOffset;
+        public int yOffset;
+
+        /// <summary>
+        /// Find the map cell at the given pixel coordinates.
+        /// </summary>
+        public Cell CellAt(int px, int py) {
+            var x = xStart + ((px - xOffset) / Map.TileWidth);
+            var y = yStart + ((py - yOffset) / Map.TileHeight);
+
+            if (x < 0 || y < 0 || x >= Map.Width || y >= Map.Height) {
+                throw new OutOfBoundsException();
+            }
+
+            return Map.Cells[x, y];            
+        }
+
         /// <summary>
         /// Draws the map.
         /// <param name="batch">SpriteBatch on which to draw.</param>
@@ -24,45 +45,42 @@ namespace Dungeon {
         public void Draw(SpriteBatch batch, Rectangle viewport) {
 
             // Convert pixel coordinates to the corresponding tiles
-            int iStart, iEnd, jStart, jEnd;
             if (viewport.X >= 0) {
-                iStart = (int)Math.Floor((double)viewport.X / Map.TileWidth);
-                iEnd = iStart + (int)Math.Floor((double)viewport.Width / Map.TileWidth) + 1;
+                xStart = (int)Math.Floor((double)viewport.X / Map.TileWidth);
+                xEnd = xStart + (int)Math.Floor((double)viewport.Width / Map.TileWidth) + 1;
             }
             else {
-                iStart = (int)Math.Ceiling((double)viewport.X / Map.TileWidth);
-                iEnd = iStart + (int)Math.Ceiling((double)viewport.Width / Map.TileWidth) + 1;
+                xStart = (int)Math.Ceiling((double)viewport.X / Map.TileWidth);
+                xEnd = xStart + (int)Math.Ceiling((double)viewport.Width / Map.TileWidth) + 1;
             }
 
             if (viewport.Y >= 0) {
-                jStart = (int)Math.Floor((double)viewport.Y / Map.TileHeight);
-                jEnd = jStart + (int)Math.Floor((double)viewport.Height / Map.TileHeight) + 1;
+                yStart = (int)Math.Floor((double)viewport.Y / Map.TileHeight);
+                yEnd = yStart + (int)Math.Floor((double)viewport.Height / Map.TileHeight) + 1;
             }
             else {
-                jStart = (int)Math.Ceiling((double)viewport.Y / Map.TileHeight);
-                jEnd = jStart + (int)Math.Ceiling((double)viewport.Height / Map.TileHeight) + 1;
+                yStart = (int)Math.Ceiling((double)viewport.Y / Map.TileHeight);
+                yEnd = yStart + (int)Math.Ceiling((double)viewport.Height / Map.TileHeight) + 1;
             }
 
             // Ensure we're actually drawing stuff that's inside the map
             //iStart = Math.Max(iStart, 0);
             //jStart = Math.Max(jStart, 0);
-            iEnd = Math.Min(iEnd, Map.Width);
-            jEnd = Math.Min(jEnd, Map.Height);
 
             // Find how much of tiles at the edges of the screen will be missing
-            var xOffset = -1 * viewport.X % Map.TileWidth;
-            var yOffset = -1 * viewport.Y % Map.TileHeight;
+            xOffset = -1 * viewport.X % Map.TileWidth;
+            yOffset = -1 * viewport.Y % Map.TileHeight;
 
             //Console.WriteLine("{0} {1} {2} {3}", iStart, iEnd, viewport.X, xOffset);
 
-            for (var i = iStart; i < iEnd; i++) {
-                for (var j = jStart; j < jEnd; j++) {
-                    if (i < 0 || j < 0) continue;
+            for (var i = xStart; i < xEnd; i++) {
+                for (var j = yStart; j < yEnd; j++) {
+                    if (i < 0 || j < 0 || i >= Map.Width || j >= Map.Height) continue;
                     var cell = Map.Cells[i, j];
 
                     var position = new Vector2(
-                        Map.TileWidth * (i - iStart) + xOffset,
-                        Map.TileHeight * (j - jStart) + yOffset);
+                        Map.TileWidth * (i - xStart) + xOffset,
+                        Map.TileHeight * (j - yStart) + yOffset);
 
                     foreach (var tile in cell.Tiles) {
                         if (tile.TileSheet == null) {

@@ -19,7 +19,7 @@ namespace Dungeon {
         public SpriteBatch SpriteBatch;
         public Map Map;
         public Rectangle Viewport;
-        public Creature Player;
+        public Player Player;
 
         public static Random Random = new Random();
 
@@ -67,7 +67,7 @@ namespace Dungeon {
 
             Map = new Map();
             Map.LoadTMX(new TmxMap("Content/Map/testmap0.tmx"));
-            Player = Map.Cells[19, 11].Creatures[0];
+            Player = (Player)Map.Cells[19, 11].Creatures[0];
         }
 
         /// <summary>
@@ -104,12 +104,38 @@ namespace Dungeon {
                 Exit();
             }
 
+            if (input.Mouse.LeftButton == ButtonState.Pressed) {
+                try {
+                    var cell = Map.Renderer.CellAt(input.Mouse.X, input.Mouse.Y);
+                    var path = Map.PathBetween(Player.Cell, cell, (Cell c) => Player.CanPass(c));
+                    if (path != null) {
+                        Player.CurrentPath = path;
+                    }
+                } catch (OutOfBoundsException) {
+
+                }
+            }
+
             // Player movement code.
             // TODO (Mispy): A proper time system.
             var newx = Player.Cell.X;
             var newy = Player.Cell.Y;
             var newFacing = Player.Facing;
-            if (input.KeyPressed(Keys.Left)) {
+            if (Player.CurrentPath != null) {
+                var cell = Player.CurrentPath[0];
+                newx = cell.X;
+                newy = cell.Y;
+
+                if (newx < Player.Cell.X) {
+                    newFacing = Direction.Left;
+                } else if (newx > Player.Cell.X) {
+                    newFacing = Direction.Right;
+                }
+
+                Player.CurrentPath.RemoveAt(0);
+                if (Player.CurrentPath.Count == 0)
+                    Player.CurrentPath = null;
+            } else if (input.KeyPressed(Keys.Left)) {
                 newx -= 1;
                 newFacing = Direction.Left;
             } else if (input.KeyPressed(Keys.Right)) {

@@ -10,6 +10,9 @@ using Microsoft.Xna.Framework.Graphics;
 using TiledSharp;
 
 namespace Dungeon {
+    public class OutOfBoundsException : Exception {
+    }
+
     /// <summary>
     /// This class represents a game map, providing a common interface to
     /// the underlying Tiled map data.
@@ -128,7 +131,7 @@ namespace Dungeon {
 
                     if (tileType.Flags.Creature) {
                         // We found a creature!
-                        var cre = new Creature();
+                        var cre = tileType.Flags.Player ? new Player() : new Creature();
 
                         // Find the creature's second animation tile by looking one row down in the tileset
                         var secondTile = tileTypesById[tmxTile.Gid + (tileType.TileSheet.Width / TileWidth)];
@@ -155,6 +158,109 @@ namespace Dungeon {
 
             newSheet = Texture2D.FromStream(DungeonGame.current.Graphics, imgStream);
             return newSheet;
+        }
+
+        public List<Cell> PathBetween(Cell start, Cell end, Func<Cell, bool> passable) {
+            // nodes that have already been analyzed and have a path from the start to them
+            var closedSet = new List<Cell>();
+            // nodes that have been identified as a neighbor of an analyzed node, but have 
+            // yet to be fully analyzed
+            var openSet = new List<Cell> { start };
+            // a dictionary identifying the optimal origin Cell to each node. this is used 
+            // to back-track from the end to find the optimal path
+            var cameFrom = new Dictionary<Cell, Cell>();
+            // a dictionary indicating how far each analyzed node is from the start
+            var currentDistance = new Dictionary<Cell, int>();
+            // a dictionary indicating how far it is expected to reach the end, if the path 
+            // travels through the specified node. 
+            var predictedDistance = new Dictionary<Cell, float>();
+
+            // initialize the start node as having a distance of 0, and an estmated distance 
+            // of y-distance + x-distance, which is the optimal path in a square grid that 
+            // doesn't allow for diagonal movement
+            currentDistance.Add(start, 0);
+            predictedDistance.Add(
+                start,
+                0 + +Math.Abs(start.X - end.X) + Math.Abs(start.Y - end.Y)
+                );
+
+            // if there are any unanalyzed nodes, process them
+            while (openSet.Count > 0) {
+                // get the node with the lowest estimated cost to finish
+
+                var current = (
+                    from p in openSet orderby predictedDistance[p] ascending select p
+                ).First();
+
+                // if it is the finish, return the path
+                if (current.X == end.X && current.Y == end.Y) {
+                    // generate the found path
+                    return ReconstructPath(cameFrom, end);
+                }
+
+                // move current node from open to closed
+                openSet.Remove(current);
+                closedSet.Add(current);
+
+                // process each valid node around the current node
+                foreach (var neighbor in current.FindNeighbors()) {
+                    if (!passable(neighbor)) {
+                        continue;
+                    }
+
+                    var tempCurrentDistance = currentDistance[current] + 1;
+
+                    // if we already know a faster way to this neighbor, use that route and 
+                    // ignore this one
+                    if (closedSet.Contains(neighbor)
+                        && tempCurrentDistance >= currentDistance[neighbor]) {
+                        continue;
+                    }
+
+                    // if we don't know a route to this neighbor, or if this is faster, 
+                    // store this route
+                    if (!closedSet.Contains(neighbor)
+                        || tempCurrentDistance < currentDistance[neighbor]) {
+                        if (cameFrom.Keys.Contains(neighbor)) {
+                            cameFrom[neighbor] = current;
+                        }
+                        else {
+                            cameFrom.Add(neighbor, current);
+                        }
+
+                        currentDistance[neighbor] = tempCurrentDistance;
+                        predictedDistance[neighbor] =
+                            currentDistance[neighbor]
+                            + Math.Abs(neighbor.X - end.X)
+                                + Math.Abs(neighbor.Y - end.Y);
+
+                        // if this is a new node, add it to processing
+                        if (!openSet.Contains(neighbor)) {
+                            openSet.Add(neighbor);
+                        }
+                    }
+                }
+            }
+
+            // unable to figure out a path, abort.
+            return null;
+        }
+
+        /// <summary>
+        /// Process a list of valid paths generated by the Pathfind function and return 
+        /// a coherent path to current.
+        /// </summary>
+        /// <param name="cameFrom">A list of nodes and the origin to that node.</param>
+        /// <param name="current">The destination node being sought out.</param>
+        /// <returns>The shortest path from the start to the destination node.</returns>
+        private List<Cell> ReconstructPath(Dictionary<Cell, Cell> cameFrom, Cell current) {
+            if (!cameFrom.Keys.Contains(current)) {
+                return new List<Cell> { current };
+            }
+
+            var path = ReconstructPath(cameFrom, cameFrom[current]);
+            path.Add(current);
+            return path;
         }
     }
 }
