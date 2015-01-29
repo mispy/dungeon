@@ -70,7 +70,7 @@ namespace Dungeon {
             Map.LoadTMX(new TmxMap("Content/Map/testmap0.tmx"));
             Player = (Player)Map.Cells[19, 11].Creatures[0];
 
-            Font = Content.Load<SpriteFont>("Arial");
+            Font = Content.Load<SpriteFont>("KennyPixel");
         }
 
         /// <summary>
@@ -212,9 +212,9 @@ namespace Dungeon {
             SpriteBatch.Begin();
             Map.Renderer.Draw(SpriteBatch, Viewport);
 
-            var pos = new Vector2(50, 50);
+            var pos = new Vector2(50, 550);
             Vector2 origin = Font.MeasureString("test")/2;
-            SpriteBatch.DrawString(Font, "test", pos, Color.LightGreen, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
+            SpriteBatch.DrawString(Font, "this is some example action text", pos, Color.White, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
             SpriteBatch.End();
 
             base.Draw(gameTime);
