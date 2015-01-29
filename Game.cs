@@ -80,6 +80,7 @@ namespace Dungeon {
         /// </summary>
         protected override void UnloadContent() {
             // TODO: Unload any non ContentManager content here
+            
         }
 
         /// <summary>
@@ -194,9 +195,9 @@ namespace Dungeon {
             base.Update(gameTime);
         }
 
-        // <summary>
-        // Centers the current Viewport around the player
-        // </summary>
+        /// <summary>
+        /// Centers the current Viewport around the player
+        /// </summary>
         protected void CenterCamera() {
             Viewport.X = (Player.Cell.X * Map.TileWidth) - (Viewport.Width / 2);
             Viewport.Y = (Player.Cell.Y * Map.TileHeight) - (Viewport.Height / 2);

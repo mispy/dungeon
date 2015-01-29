@@ -15,9 +15,9 @@ namespace Dungeon {
         UpLeft
     }
 
-    // <summary>
-    // A Creature is any kind of living (or undead?) entity, like the player or an NPC.
-    // </summary>
+    /// <summary>
+    /// A Creature is any kind of living (or undead?) entity, like the player or an NPC.
+    /// </summary>
     public class Creature {
         /// <summary>
         /// Cell on the map currently containing this creature
