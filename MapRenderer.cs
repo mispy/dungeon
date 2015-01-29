@@ -6,9 +6,9 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace Dungeon {
-    // <summary>
-    // Map component which draws a Map on the screen.
-    // </summary>
+    /// <summary>
+    /// Map component which draws a Map on the screen.
+    /// </summary>
     public class MapRenderer {
         private Map Map;
 

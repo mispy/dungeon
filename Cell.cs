@@ -12,9 +12,9 @@ namespace Dungeon {
         public int X;
         public int Y;
 
-        // <summary>
-        // Graphical tiles that make up the cell, in order from bottom to top.
-        // </summary>
+        /// <summary>
+        /// Graphical tiles that make up the cell, in order from bottom to top.
+        /// </summary>
         public List<Tile> Tiles;
 
         /// <summary>
@@ -22,9 +22,9 @@ namespace Dungeon {
         /// </summary>
         public List<Item> Items;
 
-        // <summary>
-        // Creatures currently occupying the cell.
-        // </summary>
+        /// <summary>
+        /// Creatures currently occupying the cell.
+        /// </summary>
         public List<Creature> Creatures;
 
         public Map Map;

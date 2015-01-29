@@ -19,11 +19,25 @@ namespace Dungeon {
     /// </summary>
     /// 
     public class Tile {
-        public Texture2D TileSheet; // Tilesheet image containing this tile
-        public Rectangle Rectangle; // Where on the tilesheet it is
+        /// <summary>
+        /// The tilesheet image containing this tile.
+        /// </summary>
+        public Texture2D TileSheet;
+
+        /// <summary>
+        /// A rectangle specifying where on the tilesheet this tile sits.
+        /// </summary>
+        public Rectangle Rectangle;
+
+        /// <summary>
+        /// Boolean tile flags read from the Tiled properties.
+        /// </summary>
         public TileFlags Flags;
 
-        public static Tile Blank = new Tile(); // Blank placeholder tile
+        /// <summary>
+        /// A blank tile, for use as a placeholder.
+        /// </summary>
+        public static Tile Blank = new Tile();
 
         public Tile() {
             Flags = new TileFlags();
