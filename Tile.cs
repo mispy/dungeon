@@ -29,7 +29,7 @@ namespace Dungeon {
             Flags = new TileFlags();
         }
 
-        public void InitProps(PropertyDict tmxProps) {
+        public void InitProps(PropertyDict tmxProps) {            
             foreach (var pair in tmxProps) {
                 if (pair.Key == "obstacle") {
                     Flags.Obstacle = true;

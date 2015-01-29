@@ -20,6 +20,7 @@ namespace Dungeon {
         public Map Map;
         public Rectangle Viewport;
         public Player Player;
+        public SpriteFont Font;
 
         public static Random Random = new Random();
 
@@ -68,6 +69,8 @@ namespace Dungeon {
             Map = new Map();
             Map.LoadTMX(new TmxMap("Content/Map/testmap0.tmx"));
             Player = (Player)Map.Cells[19, 11].Creatures[0];
+
+            Font = Content.Load<SpriteFont>("Arial");
         }
 
         /// <summary>
@@ -208,6 +211,10 @@ namespace Dungeon {
             GraphicsDevice.Clear(bg_colour);
             SpriteBatch.Begin();
             Map.Renderer.Draw(SpriteBatch, Viewport);
+
+            var pos = new Vector2(50, 50);
+            Vector2 origin = Font.MeasureString("test")/2;
+            SpriteBatch.DrawString(Font, "test", pos, Color.LightGreen, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
             SpriteBatch.End();
 
             base.Draw(gameTime);

@@ -140,6 +140,9 @@
     <Folder Include="TiledSharp\obj\Debug\TempPE\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Arial.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="Content\Map\testmap0.tmx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <SubType>Designer</SubType>
