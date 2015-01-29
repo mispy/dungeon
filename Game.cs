@@ -28,6 +28,7 @@ namespace Dungeon {
         double timeElapsed = 0; 
         
         bool debug = true;
+        string[] messages = new string[] { "one", "two", "three", "four", "five" };
 
         //new colour for background
         Color bg_colour = new Color(38, 38, 38);
@@ -209,15 +210,46 @@ namespace Dungeon {
         protected override void Draw(GameTime gameTime) {
             CenterCamera();
             GraphicsDevice.Clear(bg_colour);
-            SpriteBatch.Begin();
-            Map.Renderer.Draw(SpriteBatch, Viewport);
-
-            var pos = new Vector2(50, 550);
-            Vector2 origin = Font.MeasureString("test")/2;
-            SpriteBatch.DrawString(Font, "this is some example action text", pos, Color.White, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
-            SpriteBatch.End();
-
+            UpdateMessages(messages);
             base.Draw(gameTime);
         }
+
+        public void PrintMessage(string message)
+        {
+
+            messages[4] = messages[3];
+            messages[3] = messages[2];
+            messages[2] = messages[1];
+            messages[1] = messages[0];
+            messages[0] = message;
+
+        }
+
+        public void UpdateMessages(string[] messages)
+        {
+            SpriteBatch.Begin();
+
+            Map.Renderer.Draw(SpriteBatch, Viewport);
+
+            //line1
+            var pos = new Vector2(50, 570);
+            Vector2 origin = Font.MeasureString("test") / 2;
+            SpriteBatch.DrawString(Font, messages[0], pos, Color.White, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
+            //line2
+            pos = new Vector2(50, 550);
+            SpriteBatch.DrawString(Font, messages[1], pos, Color.White, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
+            //line3
+            pos = new Vector2(50, 530);
+            SpriteBatch.DrawString(Font, messages[2], pos, Color.White, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
+            //line4
+            pos = new Vector2(50, 510);
+            SpriteBatch.DrawString(Font, messages[3], pos, Color.White, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
+            //line5
+            pos = new Vector2(50, 490);
+            SpriteBatch.DrawString(Font, messages[4], pos, Color.White, 0, origin, 1.0f, SpriteEffects.None, 0.5f);
+
+            SpriteBatch.End();
+        }
+
     }
 }

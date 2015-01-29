@@ -105,6 +105,14 @@ namespace Dungeon {
         public void PickUp(Cell cell, Item item) {
             cell.Items.Remove(item);
             Inventory.Add(item);
+            if (this is Player)
+            {
+                DungeonGame.current.PrintMessage("You picked up an item.");
+            }
+            else
+            {
+                DungeonGame.current.PrintMessage("A creature picked up an item.");
+            }
         }
 
         public void TakeTurn() {
