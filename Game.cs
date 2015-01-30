@@ -180,6 +180,11 @@ namespace Dungeon {
                         //Console.WriteLine(Viewport.X + ", " + Viewport.Y);
                     }
                 }
+
+                if (Player.isDead())
+                {
+                    PrintMessage("You are dead!");
+                }
             }
 
             // These controls just scroll around the map instead, for testing

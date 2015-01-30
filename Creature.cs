@@ -15,9 +15,9 @@ namespace Dungeon {
         UpLeft
     }
 
-    /// <summary>
-    /// A Creature is any kind of living (or undead?) entity, like the player or an NPC.
-    /// </summary>
+    // <summary>
+    // A Creature is any kind of living (or undead?) entity, like the player or an NPC.
+    // </summary>
     public class Creature {
         /// <summary>
         /// Cell on the map currently containing this creature
@@ -116,12 +116,48 @@ namespace Dungeon {
         }
 
         public void TakeTurn() {
-            // Choose a random cell to move to
-            var cells = Cell.FindNeighbors().FindAll((Cell cell) => CanPass(cell)).ToList();
-            if (cells.Count > 0) {
-                Console.WriteLine("{0}", cells.Count);
-                Move(cells[DungeonGame.Random.Next(0, cells.Count)]);
+            bool near_player = false;
+
+            //check to see if we're next to the player
+            var cells = Cell.FindNeighbors().FindAll((Cell cell) => !CanPass(cell)).ToList();
+            foreach (var cell in cells)
+            {
+                if (cell == DungeonGame.current.Player.Cell)
+                {
+                    //DungeonGame.current.PrintMessage("Near the player!");
+                    near_player = true;
+
+                    //if(creature.fear <= ?){
+                    //  attack_player(creature);
+                        DungeonGame.current.PrintMessage("You were attacked by a creature!");
+                    //normally we'd use attack_player(creature) which would determine if you were
+                    //hit and for how much damage, for example purposes we're just going to hurt the player
+                        DungeonGame.current.Player.hurt_player(3);
+                    //}
+
+                }
             }
+
+
+            //check to see if player is visible for creature
+                //move towards player
+
+
+            //move randomly because we can't see the player at all
+            if (!near_player)
+            {
+                // Choose a random cell to move to
+                cells = Cell.FindNeighbors().FindAll((Cell cell) => CanPass(cell)).ToList();
+                if (cells.Count > 0)
+                {
+                    //Console.WriteLine("{0}", cells.Count);
+                    Move(cells[DungeonGame.Random.Next(0, cells.Count)]);
+                }
+            }
+            
+
+            
+
         }
     }
 }
