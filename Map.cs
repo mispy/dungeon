@@ -166,6 +166,10 @@ namespace Dungeon {
             return newSheet;
         }
 
+        public bool WithinBounds(int x, int y) {
+            return x >= 0 && y >= 0 && x < Width && y < Height;
+        }
+
         public List<Cell> PathBetween(Cell start, Cell end, Func<Cell, bool> passable) {
             // nodes that have already been analyzed and have a path from the start to them
             var closedSet = new List<Cell>();

@@ -72,6 +72,7 @@ namespace Dungeon {
             Map = new Map();
             Map.LoadTMX(new TmxMap("Content/Map/testmap0.tmx"));
             Player = (Player)Map.Cells[19, 11].Creatures[0];
+            Player.ComputeFOV();
 
             Font = Content.Load<SpriteFont>("KennyPixel");
         }
@@ -168,6 +169,7 @@ namespace Dungeon {
                 if (Player.CanPass(cell)) {
                     Player.Facing = newFacing;
                     Player.Move(cell);
+                    Player.ComputeFOV();
 
                     // Other creatures take their turns
                     foreach (var cre in Map.Creatures) {

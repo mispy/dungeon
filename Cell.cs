@@ -38,6 +38,16 @@ namespace Dungeon {
             Creatures = new List<Creature>();
         }
 
+        public bool IsOpaque() {
+            foreach (var tile in Tiles) {
+                if (tile.Flags.Obstacle) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Find all cells immediately adjacent to this one.
         /// </summary>

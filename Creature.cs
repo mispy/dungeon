@@ -50,6 +50,7 @@ namespace Dungeon {
 
         public int MaxHealth = 15;
         public int Health = 15;
+        public int SightDistance = 5;
 
         public Creature() {
             Tiles = new List<Tile> { Tile.Blank };

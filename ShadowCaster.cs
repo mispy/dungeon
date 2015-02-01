@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+// This code comes from the MSDN tutorial: http://blogs.msdn.com/b/ericlippert/archive/2011/12/12/shadowcasting-in-c-part-one.aspx
+
 namespace Dungeon {
     public static class ShadowCaster {
         // Takes a circle in the form of a center point and radius, and a function that
