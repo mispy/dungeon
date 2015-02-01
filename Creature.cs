@@ -120,6 +120,7 @@ namespace Dungeon {
 
             //check to see if we're next to the player
             var cells = Cell.FindNeighbors().FindAll((Cell cell) => !CanPass(cell)).ToList();
+
             foreach (var cell in cells)
             {
                 if (cell == DungeonGame.current.Player.Cell)

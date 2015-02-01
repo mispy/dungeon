@@ -54,5 +54,12 @@ namespace Dungeon {
 
             return cells;
         }
+
+        /// <summary>
+        /// Find the minimum distance between this cell and another cell.
+        /// </summary>
+        public int DistanceTo(Cell cell) {
+            return (int)Math.Sqrt(Math.Pow(cell.X - X, 2) + Math.Pow(cell.Y - Y, 2));
+        }
     }
 }

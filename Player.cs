@@ -7,11 +7,20 @@ namespace Dungeon
 {
     public class Player : Creature
     {
+        public static Player current;
         public List<Cell> CurrentPath;
         public int max_health = 15;
         public int cur_health = 15;
 
         public Player() : base() {
+            current = this;
+        }
+
+        /// <summary>
+        /// Checks if the cell is inside the player's FOV.
+        /// </summary>
+        public bool CanSee(Cell cell) {
+            return Cell.DistanceTo(cell) < 5;
         }
 
         public void hurt_player(int damage){

@@ -60,6 +60,7 @@
     <Compile Include="MapRenderer.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="ShadowCaster.cs" />
     <Compile Include="Tile.cs" />
     <Compile Include="TiledSharp\src\AssemblyInfo.cs" />
     <Compile Include="TiledSharp\src\ImageLayer.cs" />

@@ -82,6 +82,10 @@ namespace Dungeon {
                         Map.TileWidth * (i - xStart) + xOffset,
                         Map.TileHeight * (j - yStart) + yOffset);
 
+                    if (!Player.current.CanSee(cell)) {
+                        continue;
+                    }
+
                     foreach (var tile in cell.Tiles) {
                         if (tile.TileSheet == null) {
                             // Just an empty tile
