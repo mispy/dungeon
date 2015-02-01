@@ -48,6 +48,9 @@ namespace Dungeon {
         /// </summary>
         public Direction Facing;
 
+        public int MaxHealth = 15;
+        public int Health = 15;
+
         public Creature() {
             Tiles = new List<Tile> { Tile.Blank };
             Facing = Direction.Right;
@@ -105,60 +108,80 @@ namespace Dungeon {
         public void PickUp(Cell cell, Item item) {
             cell.Items.Remove(item);
             Inventory.Add(item);
-            if (this is Player)
-            {
-                DungeonGame.current.PrintMessage("You picked up an item.");
-            }
-            else
-            {
-                DungeonGame.current.PrintMessage("A creature picked up an item.");
+
+            SendMessage("You picked up an item.");
+            if (!(this is Player)) {
+                Player.current.SendMessage("A creature picked up an item.");
             }
         }
 
+        /// <summary>
+        /// Determines whether another creature should be considered an enemy.
+        /// </summary>
+        public bool IsEnemy(Creature cre) {
+            if (this is Player) {
+                return !(cre is Player);
+            } else {
+                return cre is Player;
+            }
+        }
+
+        /// <summary>
+        /// Sends message to a creature. If the creature is the player, it will be printed.
+        /// </summary>
+        public void SendMessage(string msg) {
+            if (this is Player) {
+                DungeonGame.current.PrintMessage(msg);
+            }            
+        }
+
+        public void Attack(Creature cre) {
+            var damage = 3;
+            cre.Health -= damage;
+            cre.SendMessage("You lost " + damage + " hit points.");
+        }
+
+        public void Heal(int amount) {
+            if (Health == MaxHealth) {
+                SendMessage("You are already at full health!");
+            } else if (Health + amount > MaxHealth) {
+                Health = MaxHealth;
+                SendMessage("You've been restored by " + amount + " hit points.");
+                SendMessage("You have been restored to full health.");
+            } else {
+                Health += amount;
+                SendMessage("You've been restored by " + amount + " hit points.");
+            }
+        }
+
+        public bool IsDead() {
+            return (Health <= 0);
+        }
+
         public void TakeTurn() {
-            bool near_player = false;
-
-            //check to see if we're next to the player
-            var cells = Cell.FindNeighbors().FindAll((Cell cell) => !CanPass(cell)).ToList();
-
-            foreach (var cell in cells)
-            {
-                if (cell == DungeonGame.current.Player.Cell)
-                {
-                    //DungeonGame.current.PrintMessage("Near the player!");
-                    near_player = true;
-
-                    //if(creature.fear <= ?){
-                    //  attack_player(creature);
-                        DungeonGame.current.PrintMessage("You were attacked by a creature!");
-                    //normally we'd use attack_player(creature) which would determine if you were
-                    //hit and for how much damage, for example purposes we're just going to hurt the player
-                        DungeonGame.current.Player.hurt_player(3);
-                    //}
-
+            // Find any adjacent enemies to attack
+            var enemies = new List<Creature>();
+            foreach (var cell in Cell.FindNeighbors()) {
+                foreach (var cre in cell.Creatures) {
+                    if (IsEnemy(cre)) {
+                        enemies.Add(cre);
+                    }
                 }
             }
 
-
-            //check to see if player is visible for creature
-                //move towards player
-
-
-            //move randomly because we can't see the player at all
-            if (!near_player)
-            {
+            if (enemies.Count > 0) {
+                // TODO: prioritize if there is more than one enemy
+                Attack(enemies[0]);
+            } else { 
+                // TODO: move towards any visible enemies
+                
                 // Choose a random cell to move to
-                cells = Cell.FindNeighbors().FindAll((Cell cell) => CanPass(cell)).ToList();
-                if (cells.Count > 0)
-                {
+                var cells = Cell.FindNeighbors().FindAll((Cell cell) => CanPass(cell)).ToList();
+                if (cells.Count > 0) {
                     //Console.WriteLine("{0}", cells.Count);
                     Move(cells[DungeonGame.Random.Next(0, cells.Count)]);
-                }
+                }            
             }
-            
-
-            
-
         }
     }
 }

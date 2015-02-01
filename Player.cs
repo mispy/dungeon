@@ -9,8 +9,6 @@ namespace Dungeon
     {
         public static Player current;
         public List<Cell> CurrentPath;
-        public int max_health = 15;
-        public int cur_health = 15;
         public bool[,] Memory;
 
         public Player() : base() {
@@ -35,40 +33,5 @@ namespace Dungeon
         public bool RemembersCell(Cell cell) {
             return Memory[cell.X, cell.Y];
         }
-
-        public void hurt_player(int damage){
-            cur_health -= damage;
-            DungeonGame.current.PrintMessage("You lost " + damage + " hit points.");
-        }
-
-        public void heal_player(int amount)
-        {
-            if (cur_health == max_health)
-            {
-                DungeonGame.current.PrintMessage("You are already at full health!");
-            }
-            else if (cur_health + amount > max_health)
-            {
-                cur_health = max_health;
-                DungeonGame.current.PrintMessage("You've been restored by " + amount + " hit points.");
-                DungeonGame.current.PrintMessage("You have been restored to full health.");
-            }
-            else
-            {
-                cur_health += amount;
-                DungeonGame.current.PrintMessage("You've been restored by " + amount + " hit points.");
-            }
-        }
-
-        public bool isDead()
-        {
-            if (cur_health <= 0)
-            {
-                return true;
-            }
-            return false;
-        }
-
-
     }
 }

@@ -181,7 +181,7 @@ namespace Dungeon {
                     }
                 }
 
-                if (Player.isDead())
+                if (Player.IsDead())
                 {
                     PrintMessage("You are dead!");
                 }
