@@ -82,7 +82,10 @@ namespace Dungeon {
                         Map.TileWidth * (i - xStart) + xOffset,
                         Map.TileHeight * (j - yStart) + yOffset);
 
-                    if (!Player.current.CanSee(cell)) {
+                    var visible = Player.current.CanSee(cell);
+                    var remembers = Player.current.RemembersCell(cell);
+
+                    if (!visible && !remembers) {
                         continue;
                     }
 
@@ -91,10 +94,15 @@ namespace Dungeon {
                             // Just an empty tile
                             continue;
                         }
-
+                                              
                         batch.Draw(tile.TileSheet, position,
-                                tile.Rectangle, Color.White, 0.0f, new Vector2(0, 0),
+                                tile.Rectangle, visible ? Color.White : Color.Gray, 0.0f, new Vector2(0, 0),
                                 1, SpriteEffects.None, 0);
+                    }
+
+                    if (!visible) {
+                        // Don't draw any creatures or items if we can't see the location
+                        continue;
                     }
 
                     foreach (var item in cell.Items) {

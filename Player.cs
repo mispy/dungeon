@@ -11,16 +11,29 @@ namespace Dungeon
         public List<Cell> CurrentPath;
         public int max_health = 15;
         public int cur_health = 15;
+        public bool[,] Memory;
 
         public Player() : base() {
             current = this;
+
+            var map = DungeonGame.current.Map;
+            Memory = new bool[map.Width, map.Height];
         }
 
         /// <summary>
         /// Checks if the cell is inside the player's FOV.
         /// </summary>
         public bool CanSee(Cell cell) {
-            return Cell.DistanceTo(cell) < 5;
+            if (Cell.DistanceTo(cell) < 5) {
+                Memory[cell.X, cell.Y] = true;
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public bool RemembersCell(Cell cell) {
+            return Memory[cell.X, cell.Y];
         }
 
         public void hurt_player(int damage){
