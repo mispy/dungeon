@@ -79,10 +79,6 @@ namespace Dungeon {
             TileWidth = tmx.TileWidth;
             TileHeight = tmx.TileHeight;
 
-            // We map tmx tile gid => Tile so we can put the tile properties in
-            var tileTypesById = new Dictionary<int, Tile>();
-            tileTypesById[0] = Tile.Blank;
-
             foreach (TmxTileset ts in tmx.Tilesets) {
                 var tileSheet = GetTileSheet(ts.Image.Source);
 
@@ -100,10 +96,9 @@ namespace Dungeon {
                 var id = ts.FirstGid;
                 for (var h = hStart; h < hEnd; h += hInc) {
                     for (var w = wStart; w < wEnd; w += wInc) {                        
-                        var tile = new Tile();
+                        var tile = new Tile(id);
                         tile.TileSheet = tileSheet;
                         tile.Rectangle = new Rectangle(w, h, ts.TileWidth, ts.TileHeight);
-                        tileTypesById[id] = tile;
 
                         TileTypes.Add(tile);
                         id += 1;
@@ -111,7 +106,7 @@ namespace Dungeon {
                 }
    
                 foreach (TmxTilesetTile tile in ts.Tiles) {
-                     tileTypesById[ts.FirstGid+tile.Id].InitProps(tile.Properties);
+                     Tile.ById[ts.FirstGid+tile.Id].InitProps(tile.Properties);
                 }
             }
 
@@ -127,7 +122,7 @@ namespace Dungeon {
 
             foreach (TmxLayer tmxLayer in tmx.Layers) {
                 foreach (TmxLayerTile tmxTile in tmxLayer.Tiles) {
-                    var tileType = tileTypesById[tmxTile.Gid];
+                    var tileType = Tile.ById[tmxTile.Gid];
                     var cell = Cells[tmxTile.X, tmxTile.Y];
 
                     if (tileType.Flags.Creature) {
@@ -135,7 +130,7 @@ namespace Dungeon {
                         var cre = tileType.Flags.Player ? new Player() : new Creature();
 
                         // Find the creature's second animation tile by looking one row down in the tileset
-                        var secondTile = tileTypesById[tmxTile.Gid + (tileType.TileSheet.Width / TileWidth)];
+                        var secondTile = Tile.ById[tmxTile.Gid + (tileType.TileSheet.Width / TileWidth)];
                         cre.Tiles = new List<Tile>() { tileType, secondTile };
 
                         cre.Move(cell);

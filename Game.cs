@@ -6,6 +6,8 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Storage;
+using Microsoft.Xna.Framework.Media;
+using Microsoft.Xna.Framework.Audio;
 using TiledSharp;
 
 namespace Dungeon {
@@ -101,7 +103,16 @@ namespace Dungeon {
                 }
 
                 //fire and misc map animations
-
+                for (var x = 0; x < Map.Width; x++) {
+                    for (var y = 0; y < Map.Height; y++) {
+                        var cell = Map.Cells[x, y];
+                        for (var i = 0; i < cell.Tiles.Count; i++) {
+                            if (cell.Tiles[i].Props.ContainsKey("animation")) {
+                                cell.Tiles[i] = Tile.ById[cell.Tiles[i].Id + int.Parse(cell.Tiles[i].Props["animation"])];
+                            }
+                        }
+                    }
+                }
 
                 timeElapsed = 0;
             }

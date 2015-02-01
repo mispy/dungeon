@@ -126,6 +126,9 @@
     <Content Include="Content\Tile\oryx_world2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Content\tmp_music.wma">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icon.ico" />
     <Content Include="TiledSharp\bin\Debug\TiledSharp.dll" />
     <Content Include="TiledSharp\bin\Debug\TiledSharp.pdb" />
@@ -163,6 +166,9 @@
     <None Include="Content\Tile\oryx_world2.tsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="Content\tmp_music.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="TiledSharp\desktop.ini" />
     <None Include="TiledSharp\obj\Debug\DesignTimeResolveAssemblyReferencesInput.cache" />
   </ItemGroup>

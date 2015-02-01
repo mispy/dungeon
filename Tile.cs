@@ -19,6 +19,9 @@ namespace Dungeon {
     /// </summary>
     /// 
     public class Tile {
+        public static Dictionary<string, Tile> ByName = new Dictionary<string, Tile>();
+        public static Dictionary<int, Tile> ById = new Dictionary<int, Tile>();
+
         /// <summary>
         /// The tilesheet image containing this tile.
         /// </summary>
@@ -37,13 +40,23 @@ namespace Dungeon {
         /// <summary>
         /// A blank tile, for use as a placeholder.
         /// </summary>
-        public static Tile Blank = new Tile();
+        public static Tile Blank = new Tile(0);
 
-        public Tile() {
+        public string Name;
+
+        public Dictionary<string, string> Props;
+
+        public int Id;
+
+        public Tile(int id) {
+            Id = id;
             Flags = new TileFlags();
+            Props = new Dictionary<string, string>();
+
+            Tile.ById[Id] = this;
         }
 
-        public void InitProps(PropertyDict tmxProps) {            
+        public void InitProps(PropertyDict tmxProps) {
             foreach (var pair in tmxProps) {
                 if (pair.Key == "obstacle") {
                     Flags.Obstacle = true;
@@ -53,6 +66,11 @@ namespace Dungeon {
                     Flags.Player = true;
                 } else if (pair.Key == "item") {
                     Flags.Item = true;
+                } else if (pair.Key == "name") {
+                    Name = pair.Value;
+                    ByName[Name] = this;
+                } else {
+                    Props[pair.Key] = pair.Value;
                 }
             }
         }

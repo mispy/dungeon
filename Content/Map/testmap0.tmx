@@ -92,6 +92,16 @@
     <property name="obstacle" value="true"/>
    </properties>
   </tile>
+  <tile id="963">
+   <properties>
+    <property name="animation" value="1"/>
+   </properties>
+  </tile>
+  <tile id="964">
+   <properties>
+    <property name="animation" value="-1"/>
+   </properties>
+  </tile>
   <tile id="1027">
    <properties>
     <property name="obstacle" value="true"/>
@@ -4013,7 +4023,7 @@
    <tile gid="1024"/>
    <tile gid="1024"/>
    <tile gid="1024"/>
-   <tile gid="943"/>
+   <tile gid="1024"/>
    <tile gid="1024"/>
    <tile gid="1024"/>
    <tile gid="1024"/>
